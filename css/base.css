@@ -1,0 +1,44 @@
+/* common setting */
+* {
+	margin: 0;
+	padding: 0;
+}
+
+html, body {
+	height: 100%;
+}
+
+body {
+	font: 12px san-serif;
+	line-height:1.3em;
+	background-color: #ffffff;
+	text-align: center;
+}
+
+h1 {
+	font-size: 24px;
+}
+h2 {
+	font-size: 18px;
+}
+h3 {
+	font-size: 14px;
+}
+h4 {
+	font-size: 12px;
+	font-weight: normal;
+}
+
+td {
+	font-size: 12px;
+	font-weight: normal;
+}
+
+hr {
+	display: none;
+}
+
+.float_clear {
+	clear:both;
+}
+
