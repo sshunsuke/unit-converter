@@ -1,7 +1,10 @@
 /**
  * Conversion Table of Length.
  */
-unitConverter.unittables.length = unitConverter.core.unittable(
+unitConverter.core.unittable(
+    // Category Name (mandatory)
+    "length",
+    
     // Meta Data (reserved)
     {},
     
@@ -16,3 +19,4 @@ unitConverter.unittables.length = unitConverter.core.unittable(
         {unit: "ft", ratio: 3.28084}
     ]
 )
+

@@ -7,20 +7,20 @@
 
 
 $(function() {
+    
     var jqCategory = $("#category")
     var jqButton
-    var ut = unitConverter.unittables
-
+    var categoryList = unitConverter.core.categoryList()
+    
     // 左側に Unit Button を配置
-    for ( k in ut ) {
-        if ( ut.hasOwnProperty(k) ) {
-            jqButton = $("<div class=\"button\">" + k + "</div>")
-            jqButton.click( unitConverter.ui.generateButtonClickAction(k) )
-            jqCategory.append(jqButton)
-        }
+    for (var i=0; i<categoryList.length; i++) {
+        jqButton = $("<div class=\"button\">" + categoryList[i] + "</div>")
+        jqButton.click( unitConverter.ui.generateButtonClickAction(categoryList[i]) )
+        jqCategory.append(jqButton)
     }
     
     jqCategory.children().eq(0).click()
+
 
     /*
     n1 = new BigDecimal("1234.5678")

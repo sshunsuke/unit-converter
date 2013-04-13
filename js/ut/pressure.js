@@ -1,7 +1,10 @@
 /**
- * Conversion Table of Length.
+ * Conversion Table of Pressure.
  */
-unitConverter.unittables.pressure = unitConverter.core.unittable(
+unitConverter.core.unittable(
+    // Category Name (mandatory)
+    "pressure",
+    
     // Meta Data (reserved)
     {},
     
@@ -13,3 +16,4 @@ unitConverter.unittables.pressure = unitConverter.core.unittable(
         {unit: "bar", ratio: 0.00001},
     ]
 )
+

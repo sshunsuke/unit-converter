@@ -1,7 +1,10 @@
 /**
  * Conversion Table of Weight.
  */
-unitConverter.unittables.weight = unitConverter.core.unittable(
+unitConverter.core.unittable(
+    // Category Name (mandatory)
+    "weight",
+    
     // Meta Data (reserved)
     {},
     
