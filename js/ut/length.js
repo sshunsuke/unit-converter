@@ -14,7 +14,7 @@ unitConverter.core.unittable(
         {unit: "km", ratio: 0.001},
         {unit: "cm", ratio: 100},
         {unit: "mm", ratio: 1000},
-        {unit: "µm", ratio: 1000000},
+        {unit: "micro-m", ratio: 1000000, label: "µm"},
         {unit: "inch", ratio: 39.3701},
         {unit: "ft", ratio: 3.28084}
     ]

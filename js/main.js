@@ -10,7 +10,7 @@ $(function() {
     
     var jqCategory = $("#category")
     var jqButton
-    var categoryList = unitConverter.core.categoryList()
+    var categoryList = unitConverter.core.getCategoryList()
     
     // 左側に Unit Button を配置
     for (var i=0; i<categoryList.length; i++) {

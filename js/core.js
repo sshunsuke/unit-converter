@@ -10,7 +10,6 @@ unitConverter = {}
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 unitConverter.core = (function(){
-    var utables_ = unitConverter.unittables
     
     var utMap_ = {}
     
@@ -26,18 +25,21 @@ unitConverter.core = (function(){
             
             var t = {
                 unitList: [],
-                conversionInfo: {}
+                unitInfoMap: {}
             }
             
             for (var i=0; i<conversionTable.length; i++) {
                 unit = conversionTable[i].unit
                 t.unitList.push(unit)
-                t.conversionInfo[unit] = conversionTable[i].ratio
+                t.unitInfoMap[unit] = {
+                    ratio: conversionTable[i].ratio,
+                }
+                t.unitInfoMap[unit].label = conversionTable[i].label || conversionTable[i].unit
             }
             utMap_[category] = t
         },
         
-        categoryList: function() {
+        getCategoryList: function() {
             var list = []
             for (var k in utMap_) {
                 if (utMap_.hasOwnProperty(k)) {
@@ -47,32 +49,39 @@ unitConverter.core = (function(){
             return list
         },
         
-        unitList: function(category) {
-            if (!(utMap_[category])) {
-                return null
-            }
-            return utMap_[category].unitList
+        getUnitList: function(category) {
+            return (utMap_[category] == null) ? null : utMap_[category].unitList
+        },
+        
+        getLabel: function(category, unit) {
+            return (utMap_[category] == null) ? null : utMap_[category].unitInfoMap[unit].label
         },
         
         convert: function(category, unit, value) {
+            var unitList, unitInfoMap
             var from, to, u
             var resultTable = {}
-            var unitList = unitConverter.core.unitList(category)
-            var conversionInfo = utMap_[category].conversionInfo
+            
+            if (utMap_[category] == null) {
+                return null
+            }
+            
+            unitList = utMap_[category].unitList
+            unitInfoMap = utMap_[category].unitInfoMap
             
             try {
-                from = new BigDecimal(String(conversionInfo[unit]))
+                from = new BigDecimal(String(unitInfoMap[unit].ratio))
                 value = new BigDecimal(value)
 
                 for(var i = 0; i < unitList.length; i++) {
-                    u = unitList[i]
-                    to = new BigDecimal(String(conversionInfo[u]))
+                    unitName = unitList[i]
+                    to = new BigDecimal(String(unitInfoMap[unitName].ratio))
 
                     // value * to / from
                     result = value.multiply(to).divide(from, unitConverter.core.SCALE, BigDecimal.ROUND_HALF_UP)
 
                     // 正規表現で余分な0を削る
-                    resultTable[u] = result.toString().replace(/\.?0+$/, "")
+                    resultTable[unitName] = result.toString().replace(/\.?0+$/, "")
                 }
             } catch (e) {
                 alert("error: convert")
