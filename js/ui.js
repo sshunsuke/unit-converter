@@ -20,10 +20,10 @@ unitConverter.ui.generateButtonClickAction = function(category) {
 
 unitConverter.ui.factory = {}
 
-unitConverter.ui.factory.inputTag = function(category, unit, value) {
+unitConverter.ui.factory.inputTag = function(convertManager, unit, value) {
     return $('<input>').attr({
         type : 'text',
-        id : category + "_" + unit,
+        id : convertManager.generateCssId(unit),
         name : unit,
         'class' : "uvalue",
         value : value,
@@ -32,24 +32,27 @@ unitConverter.ui.factory.inputTag = function(category, unit, value) {
 }
 
 
-unitConverter.ui.factory.labelTextTag = function(category, unit) {
-    //var label = unitConverter.core.getUnitInfo(category, unit).label
-    
-    var label = unitConverter.core.getLabel(category, unit)
+unitConverter.ui.factory.labelTextTag = function(label) {
     return $('<div>').attr({'class' : "uname"}).text(label + " :  ")
 }
 
 
-unitConverter.ui.factory.inputForm = function(category, unit, value) {
-    var jqName = unitConverter.ui.factory.labelTextTag(category, unit)
-    var jqInput = unitConverter.ui.factory.inputTag(category, unit, value)
+unitConverter.ui.factory.inputForm = function(convertManager, unit, value) {
+    var jqName, jqInput
+    var lnm = convertManager.getLabelNameManager()
+    var label = lnm.getLabelFromUnit(unit)
+    
+    jqName = unitConverter.ui.factory.labelTextTag(label)
+    jqInput = unitConverter.ui.factory.inputTag(convertManager, unit, value)
 
     return $('<div>').addClass('container').
            append(jqName).append(jqInput).append("<div class='float_clear'><\/>")
 }
 
-unitConverter.ui.factory.inputAction = function(category, unit) {
-    var idName = "#" + category + "_" + unit
+
+unitConverter.ui.factory.inputAction = function(convertManager, unit) {
+    var converter = convertManager.getConverter()
+    var idName = "#" + convertManager.generateCssId(unit)
     var oldValue = $(idName).val()
 
     return function() {
@@ -67,8 +70,8 @@ unitConverter.ui.factory.inputAction = function(category, unit) {
             return
         }
         
-        resultTable = unitConverter.core.convert(category, unit, currValue)
-        unitConverter.ui.controller.setUnitFormValue(category, resultTable)
+        resultTable = converter.convertAll(unit, currValue)
+        unitConverter.ui.controller.setUnitFormValue(convertManager, resultTable)
         oldValue = currValue
     }
 }
@@ -79,24 +82,33 @@ unitConverter.ui.factory.inputAction = function(category, unit) {
 unitConverter.ui.controller = {}
 
 unitConverter.ui.controller.repaintUnit = function(category, resultTable) {
+    var cm, converter, unitList, unit
     var jqUnit, jqForm, jqInput
+    var resultTable
     var factory = unitConverter.ui.factory
-    var unitList = unitConverter.core.getUnitList(category)
-    var resultTable = unitConverter.core.convert(category, unitList[0], "1")
+    
+    cm = unitConverter.core.getConvertManagerList().getConvertManager(category)
+    converter = cm.getConverter()
+    unitList = cm.getUnitNameList(category)
+    
+    resultTable = converter.convertAll(unitList[0], "1")
     
     jqUnit = $("#unit").empty()
     jqForm = $("<form id=\"values\"></form>").appendTo(jqUnit)
 
     // Form 部分を作成
     for(var i = 0; i < unitList.length; i++) {
-        jqInput = factory.inputForm(category, unitList[i], resultTable[unitList[i]])
+        unit = unitList[i]
+        jqInput = factory.inputForm(cm, unit, resultTable[unit])
         jqForm.append(jqInput)
-        jqInput.bind('keyup', factory.inputAction(category, unitList[i]))
+        jqInput.bind('keyup', factory.inputAction(cm, unit))
     }
 }
 
-unitConverter.ui.controller.setUnitFormValue = function(category, resultTable) {
-    var unitList = unitConverter.core.getUnitList(category)
+
+unitConverter.ui.controller.setUnitFormValue = function(convertManager, resultTable) {
+    var unitList = convertManager.getUnitNameList()
+    var category = convertManager.getCategoryName()
     var prefixStr = "#" + category + "_"
 
     for(var i = 0; i < unitList.length; i++) {

@@ -2,7 +2,6 @@
  * Entry Point.
  *
  * @author  Shunsuke
- * @version 0.1
  */
 
 
@@ -10,7 +9,8 @@ $(function() {
     
     var jqCategory = $("#category")
     var jqButton
-    var categoryList = unitConverter.core.getCategoryList()
+    var cml = unitConverter.core.getConvertManagerList()
+    var categoryList = cml.getCategoryNameList()
     
     // 左側に Unit Button を配置
     for (var i=0; i<categoryList.length; i++) {
