@@ -1,16 +1,16 @@
 /**
  * Conversion Table of Temperature.
  */
-unitConverter.core.unittable(
+unitConverter.conversionTable(
     // Category Name (mandatory)
     "temperature",
     
     // Meta Data 
-    { type: "linear", baseunit: "K"},
+    { type: "linear"},
     
     // difinition of unit.
     [
-        {unit: "K", slope: 1, y_intercept: 0},
+        {unit: "K", type: "baseunit"},
         {unit: "C", slope: 1, y_intercept: -273.15},
         {unit: "F", slope: 1.8, y_intercept: -459.67}
     ]

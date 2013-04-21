@@ -1,7 +1,7 @@
 /**
  * Conversion Table of Length.
  */
-unitConverter.core.unittable(
+unitConverter.conversionTable(
     // Category Name (mandatory)
     "length",
     

@@ -1,7 +1,7 @@
 /**
  * Conversion Table of Weight.
  */
-unitConverter.core.unittable(
+unitConverter.conversionTable(
     // Category Name (mandatory)
     "weight",
     
@@ -12,6 +12,7 @@ unitConverter.core.unittable(
     [
         {unit: "kg", ratio: 1},
         {unit: "g", ratio: 1000},
+        {unit: "mg", ratio: 1000000},
         {unit: "ton", ratio: 0.001}
     ]
 )

@@ -5,7 +5,7 @@
  * @author  Shunsuke
  */
 
-// All Unit Converter objects should point back to these
+// All Unit Converter objects should point back to these.
 unitConverter = {}
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
@@ -15,31 +15,35 @@ unitConverter.core = (function(){
     // Unit Table Map
     var utMap_ = {}
     
-    //
+    /* - - - - - - - - - - - - - - - - - - - */
+    
+    // Actual 
     var convertLogic_ = {}
     
+    // Function Table containing register process 
     var utRegister_ = {}
     
     /* - - - - - - - - - - - - - - - - - - - */
     
-    // Convert Manager
+    // Prototype of Convert Manager objects.
     var protoConvertManager_ = function(category) {
         this.category = category
         this.cache = {}
     }
     
-    // Converter
+    // Prototype of Converter objects.
     var protoConverter_ = function(category) {
         this.category = category
     }
     
-    // Label Name Manager.
+    // Prototype of Label Name Manager.
     var protoLabelNameManager_ = function(category) {
         this.category = category
     }
     
     /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
     
+    // A function to do actual conversion
     convertLogic_.convertAll = function(category, unit, value) {
         var resultTable = {}
         
@@ -63,6 +67,7 @@ unitConverter.core = (function(){
         return resultTable
     }
     
+    // 
     convertLogic_.ratioAll = function(category, unit, value) {
         var unitList, unitInfoMap
         var from, to, unitName
@@ -89,6 +94,7 @@ unitConverter.core = (function(){
         return resultTable
     }
     
+    // 
     convertLogic_.linearAll = function(category, unit, value) {
         var unitName, unitInfo
         var uSlope, uY_intercept
@@ -160,6 +166,7 @@ unitConverter.core = (function(){
     }
   
     utRegister_.register = function(category, meta, conversionTable) {
+        var i
         var unit
 
         // あれこれプリプロセス処理を追加する予定
@@ -176,9 +183,19 @@ unitConverter.core = (function(){
         }
 
         t.type = meta.type || "ratio"
-        t.baseunit = meta.baseunit
 
-        for(var i = 0; i < conversionTable.length; i++) {
+        if (t.type == "linear") {
+            for (i = 0; i < conversionTable.length; i++) {
+                if (conversionTable[i].type == "baseunit") {
+                    t.baseunit = conversionTable[i].unit
+                    conversionTable[i].slope = 1
+                    conversionTable[i].y_intercept = 0
+                    break
+                }
+            }
+        }
+
+        for(i = 0; i < conversionTable.length; i++) {
             unit = conversionTable[i].unit
             t.unitList.push(unit)
             t.unitInfoMap[unit] = utRegister_.unitInfo(t.type, conversionTable[i])
@@ -263,10 +280,11 @@ unitConverter.core = (function(){
     
     /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
     
+    // Publib Methods.
     return {
         SCALE: 20,
         
-        unittable: function(category, meta, conversionTable) {
+        registerUnittable: function(category, meta, conversionTable) {
             utRegister_.register(category, meta, conversionTable)
         },
         
@@ -276,4 +294,11 @@ unitConverter.core = (function(){
     }
     
 })()
+
+
+unitConverter.conversionTable = function(category, meta, conversionTable) {
+    unitConverter.core.registerUnittable(category, meta, conversionTable)
+}
+
+
 
