@@ -64,7 +64,7 @@ unitConverter.ui.factory.inputAction = function(convertManager, unit) {
             return
         }
         try {
-            new BigDecimal(currValue)
+            new Big(currValue)
         } catch (e) {
             //alert(e)
             return

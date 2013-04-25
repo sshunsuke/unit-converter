@@ -76,19 +76,18 @@ unitConverter.core = (function(){
         unitList = utMap_[category].unitList
         unitInfoMap = utMap_[category].unitInfoMap
         
-        from = new BigDecimal(String(unitInfoMap[unit].ratio))
-        value = new BigDecimal(value)
+        from = new Big( unitInfoMap[unit].ratio )
+        value = new Big(value)
 
         for(var i = 0; i < unitList.length; i++) {
             unitName = unitList[i]
-            to = new BigDecimal(String(unitInfoMap[unitName].ratio))
+            to = new Big(unitInfoMap[unitName].ratio)
             
             // value * to / from
-            result = value.multiply(to).divide(from,
-                                               unitConverter.core.SCALE,
-                                               BigDecimal.ROUND_HALF_UP)
+            result = value.times(to).div(from).round(unitConverter.core.SCALE)
+            
             // 正規表現で余分な0を削る
-            resultTable[unitName] = result.toString().replace(/\.?0+$/, "")
+            resultTable[unitName] = result.toString()  // .replace(/\.?0+$/, "")
         }
 
         return resultTable
@@ -104,14 +103,13 @@ unitConverter.core = (function(){
         var unitInfoMap = utMap_[category].unitInfoMap
         
         var basevalue = (function() {
-            var v = new BigDecimal(value)
-            var slope = new BigDecimal(String(unitInfoMap[unit].slope))
-            var y_intercept = new BigDecimal(String(unitInfoMap[unit].y_intercept))
+            var v = new Big(value)
+            var slope = new Big(unitInfoMap[unit].slope)
+            var y_intercept = new Big(unitInfoMap[unit].y_intercept)
             
             //   (1 / slope * value) - (y_intercept / slope)
             // = (value - y_intercept) / slope
-            return v.subtract(y_intercept).divide(slope,
-                           unitConverter.core.SCALE, BigDecimal.ROUND_HALF_UP)
+            return v.minus(y_intercept).div(slope).round(unitConverter.core.SCALE)
         })()
         
         for(var i = 0; i < unitList.length; i++) {
@@ -123,14 +121,14 @@ unitConverter.core = (function(){
                 continue
             }
             
-            uSlope = new BigDecimal(String(unitInfo.slope))
-            uY_intercept = new BigDecimal(String(unitInfo.y_intercept))
+            uSlope = new Big(unitInfo.slope)
+            uY_intercept = new Big(unitInfo.y_intercept)
             
             // (unitInfo.slope * basevalue) + unitInfo.y_intercept
-            result = uSlope.multiply(basevalue).add(uY_intercept)
+            result = uSlope.times(basevalue).plus(uY_intercept)
             
             // 正規表現で余分な0を削る
-            resultTable[unitName] = result.toString().replace(/\.?0+$/, "")
+            resultTable[unitName] = result.toString()  // .replace(/\.?0+$/, "")
         }
         
         return resultTable
