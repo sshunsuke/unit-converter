@@ -17,148 +17,15 @@ unitConverter.core = (function(){
     
     /* - - - - - - - - - - - - - - - - - - - */
     
-    // Actual 
-    var convertLogic_ = {}
-    
     // Function Table containing register process 
     var utRegister_ = {}
     
     /* - - - - - - - - - - - - - - - - - - - */
     
-    // Prototype of Convert Manager objects.
-    var protoConvertManager_ = function(category) {
-        this.category = category
-        this.cache = {}
-    }
-    
-    // Prototype of Converter objects.
-    var protoConverter_ = function(category) {
-        this.category = category
-    }
-    
-    // Prototype of Label Name Manager.
-    var protoLabelNameManager_ = function(category) {
-        this.category = category
-    }
+
     
     /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
     
-    // A function to do actual conversion
-    convertLogic_.convertAll = function(category, unit, value) {
-        var resultTable = {}
-        
-        if(utMap_[category] == null) {
-            return null
-        }
-        
-        try {
-            if (utMap_[category].type == "ratio") {
-                resultTable = convertLogic_.ratioAll(category, unit, value)
-            } else if (utMap_[category].type == "linear") {
-                resultTable = convertLogic_.linearAll(category, unit, value)
-            } else if (utMap_[category].type == "function") {
-                resultTable = convertLogic_.functionAll(category, unit, value)
-            } else {
-                alert("error")
-            }
-        } catch (e) {
-            alert("error: " + e.toString())
-            return null
-        }
-        
-        return resultTable
-    }
-    
-    // 
-    convertLogic_.ratioAll = function(category, unit, value) {
-        var unitList, unitInfoMap
-        var from, to, unitName
-        var resultTable = {}
-
-        unitList = utMap_[category].unitList
-        unitInfoMap = utMap_[category].unitInfoMap
-        
-        from = new Big( unitInfoMap[unit].ratio )
-        value = new Big(value)
-
-        for(var i = 0; i < unitList.length; i++) {
-            unitName = unitList[i]
-            to = new Big(unitInfoMap[unitName].ratio)
-            
-            // value * to / from
-            result = value.times(to).div(from).round(unitConverter.core.SCALE)
-            
-            // 正規表現で余分な0を削る
-            resultTable[unitName] = result.toString()  // .replace(/\.?0+$/, "")
-        }
-
-        return resultTable
-    }
-    
-    // 
-    convertLogic_.linearAll = function(category, unit, value) {
-        var unitName, unitInfo
-        var uSlope, uY_intercept
-        var resultTable = {}
-        
-        var unitList = utMap_[category].unitList
-        var unitInfoMap = utMap_[category].unitInfoMap
-        
-        var basevalue = (function() {
-            var v = new Big(value)
-            var slope = new Big(unitInfoMap[unit].slope)
-            var y_intercept = new Big(unitInfoMap[unit].y_intercept)
-            
-            //   (1 / slope * value) - (y_intercept / slope)
-            // = (value - y_intercept) / slope
-            return v.minus(y_intercept).div(slope).round(unitConverter.core.SCALE)
-        })()
-        
-        for(var i = 0; i < unitList.length; i++) {
-            unitName = unitList[i]
-            unitInfo = unitInfoMap[unitName]
-            
-            if (unitName == unit) {
-                resultTable[unitName] = value
-                continue
-            }
-            
-            uSlope = new Big(unitInfo.slope)
-            uY_intercept = new Big(unitInfo.y_intercept)
-            
-            // (unitInfo.slope * basevalue) + unitInfo.y_intercept
-            result = uSlope.times(basevalue).plus(uY_intercept)
-            
-            // 正規表現で余分な0を削る
-            resultTable[unitName] = result.toString()  // .replace(/\.?0+$/, "")
-        }
-        
-        return resultTable
-    }
-    
-    convertLogic_.functionAll = function(category, unit, value) {
-        var unitName
-        var resultTable = {}
-        var unitList = utMap_[category].unitList
-        var unitInfoMap = utMap_[category].unitInfoMap
-        var converters = utMap_[category].unitInfoMap[unit].converters
-        
-        value = new Big(value)
-
-        for (var i = 0; i < unitList.length; i++) {
-            unitName = unitList[i]
-            
-            if (unitName == unit) {
-                resultTable[unitName] = value.toString()
-            } else {
-                //alert(unitName + "  " + unit)
-                //alert(converters[unit])
-                resultTable[unitName] = converters[unitName](value).toString()
-            }
-        }
-            
-        return resultTable
-    }
  
     /* - - - - - - - - - - - - - - - - - - - */
     
@@ -256,7 +123,7 @@ unitConverter.core = (function(){
             if (utMap_[category] == null) {
                 return null
             }
-            return new protoConvertManager_(category)
+            return unitConverter.core.cmf_.create(category, utMap_[category])
         }
         
         protoF.prototype.size = function(){
@@ -265,49 +132,6 @@ unitConverter.core = (function(){
         
         return new protoF() 
     })()
-    
-    /* - - - - - - - - - - - - - - - - - - - */
-    // Convert Manager
-    
-    protoConvertManager_.prototype.getUnitNameList = function() {
-        return utMap_[this.category].unitList
-    }
-    
-    protoConvertManager_.prototype.getLabelNameManager = function() {
-        if (this.cache.lnm == null) {
-            this.cache.lnm = new protoLabelNameManager_(this.category)
-        }
-        return this.cache.lnm
-    }
-    
-    protoConvertManager_.prototype.getConverter = function() {
-        if (this.cache.converter == null) {
-            this.cache.converter = new protoConverter_(this.category)
-        }
-        return this.cache.converter
-    }
-    
-    protoConvertManager_.prototype.getCategoryName = function() {
-        return this.category
-    }
-    
-    protoConvertManager_.prototype.generateCssId = function(unit) {
-        return (this.category + "_" + unit)
-    }
-    
-    /* - - - - - - - - - - - - - - - - - - - - - - - - - */
-    
-
-    protoConverter_.prototype.convertAll = function(unit, value) {
-        return convertLogic_.convertAll(this.category, unit, value)
-    }
-    
-    
-    /* - - - - - - - - - - - - - - - - - - - */
-    
-    protoLabelNameManager_.prototype.getLabelFromUnit = function(unit) {
-        return utMap_[this.category].unitInfoMap[unit].label
-    }
     
     /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
     
@@ -325,6 +149,184 @@ unitConverter.core = (function(){
     }
     
 })()
+
+
+// Converter Manager Factory.
+unitConverter.core.cmf_ = (function(){
+    
+    // Actual 
+    var convertLogic_ = {}
+    
+    // A function to do actual conversion
+    convertLogic_.convertAll = function(category, ut, unit, value) {
+        var resultTable = {}
+        
+        try {
+            if (ut.type == "ratio") {
+                resultTable = convertLogic_.ratioAll(ut, unit, value)
+            } else if (ut.type == "linear") {
+                resultTable = convertLogic_.linearAll(ut, unit, value)
+            } else if (ut.type == "function") {
+                resultTable = convertLogic_.functionAll(ut, unit, value)
+            } else {
+                alert("error")
+            }
+        } catch (e) {
+            alert("error: " + e.toString())
+            return null
+        }
+        
+        return resultTable
+    }
+    
+    // 
+    convertLogic_.ratioAll = function(ut, unit, value) {
+        var unitList, unitInfoMap
+        var from, to, unitName
+        var resultTable = {}
+
+        unitList = ut.unitList
+        unitInfoMap = ut.unitInfoMap
+        
+        from = new Big( unitInfoMap[unit].ratio )
+        value = new Big(value)
+
+        for(var i = 0; i < unitList.length; i++) {
+            unitName = unitList[i]
+            to = new Big(unitInfoMap[unitName].ratio)
+            
+            // value * to / from
+            result = value.times(to).div(from).round(unitConverter.core.SCALE)
+            
+            // 正規表現で余分な0を削る
+            resultTable[unitName] = result.toString()  // .replace(/\.?0+$/, "")
+        }
+
+        return resultTable
+    }
+    
+    // 
+    convertLogic_.linearAll = function(ut, unit, value) {
+        var unitName, unitInfo
+        var uSlope, uY_intercept
+        var resultTable = {}
+        
+        var unitList = ut.unitList
+        var unitInfoMap = ut.unitInfoMap
+        
+        var basevalue = (function() {
+            var v = new Big(value)
+            var slope = new Big(unitInfoMap[unit].slope)
+            var y_intercept = new Big(unitInfoMap[unit].y_intercept)
+            
+            //   (1 / slope * value) - (y_intercept / slope)
+            // = (value - y_intercept) / slope
+            return v.minus(y_intercept).div(slope).round(unitConverter.core.SCALE)
+        })()
+        
+        for(var i = 0; i < unitList.length; i++) {
+            unitName = unitList[i]
+            unitInfo = unitInfoMap[unitName]
+            
+            if (unitName == unit) {
+                resultTable[unitName] = value
+                continue
+            }
+            
+            uSlope = new Big(unitInfo.slope)
+            uY_intercept = new Big(unitInfo.y_intercept)
+            
+            // (unitInfo.slope * basevalue) + unitInfo.y_intercept
+            result = uSlope.times(basevalue).plus(uY_intercept)
+            
+            // 正規表現で余分な0を削る
+            resultTable[unitName] = result.toString()  // .replace(/\.?0+$/, "")
+        }
+        
+        return resultTable
+    }
+    
+    convertLogic_.functionAll = function(ut, unit, value) {
+        var unitName
+        var resultTable = {}
+        var unitList = ut.unitList
+        var unitInfoMap = ut.unitInfoMap
+        var converters = ut.unitInfoMap[unit].converters
+        
+        value = new Big(value)
+
+        for (var i = 0; i < unitList.length; i++) {
+            unitName = unitList[i]
+            
+            if (unitName == unit) {
+                resultTable[unitName] = value.toString()
+            } else {
+                //alert(unitName + "  " + unit)
+                //alert(converters[unit])
+                resultTable[unitName] = converters[unitName](value).toString()
+            }
+        }
+            
+        return resultTable
+    }
+    
+    /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+    
+    var createConverter_ = function(category, ut) {
+        return {
+            convertAll: function(unit, value) {
+                return convertLogic_.convertAll(category, ut, unit, value)
+            }
+        }
+    }
+    
+    var createLabelNameManager_ = function(category, ut) {
+        return {
+            getLabelFromUnit: function(unit) {
+                return ut.unitInfoMap[unit].label
+            }
+        }
+    }
+    
+    /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
+    
+    return {
+        
+        // Create Convert Manager.
+        create: function(category, ut) {
+            var cache = {}
+            
+            return {
+                getUnitNameList: function() {
+                    return ut.unitList
+                },
+                
+                getConverter: function() {
+                    if (cache.converter == null) {
+                        cache.converter = createConverter_(category, ut)
+                    }
+                    return cache.converter
+                },
+                             
+                getLabelNameManager: function() {
+                    if (cache.lnm == null) {
+                        cache.lnm = createLabelNameManager_(category, ut)
+                    }
+                    return cache.lnm
+                },
+                
+                getCategoryName: function() {
+                    return category
+                },
+                
+                generateCssId: function(unit) {
+                    return (category + "_" + unit)
+                }
+            }
+        }
+    }
+})()
+
 
 
 unitConverter.conversionTable = function(category, meta, conversionTable) {
