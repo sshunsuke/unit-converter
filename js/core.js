@@ -56,6 +56,8 @@ unitConverter.core = (function(){
                 resultTable = convertLogic_.ratioAll(category, unit, value)
             } else if (utMap_[category].type == "linear") {
                 resultTable = convertLogic_.linearAll(category, unit, value)
+            } else if (utMap_[category].type == "function") {
+                resultTable = convertLogic_.functionAll(category, unit, value)
             } else {
                 alert("error")
             }
@@ -133,14 +135,38 @@ unitConverter.core = (function(){
         
         return resultTable
     }
+    
+    convertLogic_.functionAll = function(category, unit, value) {
+        var unitName
+        var resultTable = {}
+        var unitList = utMap_[category].unitList
+        var unitInfoMap = utMap_[category].unitInfoMap
+        var converters = utMap_[category].unitInfoMap[unit].converters
+        
+        value = new Big(value)
+
+        for (var i = 0; i < unitList.length; i++) {
+            unitName = unitList[i]
+            
+            if (unitName == unit) {
+                resultTable[unitName] = value.toString()
+            } else {
+                //alert(unitName + "  " + unit)
+                //alert(converters[unit])
+                resultTable[unitName] = converters[unitName](value).toString()
+            }
+        }
+            
+        return resultTable
+    }
  
     /* - - - - - - - - - - - - - - - - - - - */
     
     // Unit Table の登録処理.
     
     utRegister_.checkMeta = function(meta) {
-        if ((meta.type == null) ||
-            (meta.type == "ratio") || (meta.type == "linear")) {
+        if ((meta.type == null) || (meta.type == "ratio") ||
+            (meta.type == "linear") || (meta.type == "function")) {
             return true    
         }
         return false
@@ -154,6 +180,8 @@ unitConverter.core = (function(){
         } else if (type == "linear") {
             unitInfo.slope = unitDefinition.slope
             unitInfo.y_intercept = unitDefinition.y_intercept
+        } else if (type == "function") {
+            unitInfo.converters = unitDefinition.converters
         } else {
             alert("error: xx")
         }
@@ -180,6 +208,7 @@ unitConverter.core = (function(){
             alert("error: meta")
         }
 
+        // Default 値のセット
         t.type = meta.type || "ratio"
 
         if (t.type == "linear") {
@@ -191,8 +220,12 @@ unitConverter.core = (function(){
                     break
                 }
             }
+        } else if (t.type == "function") {
+            t.arg = meta.arg || "bigDecimal"
+            t.initialValue = meta.initialValue
         }
 
+        // 実際の登録処理
         for(i = 0; i < conversionTable.length; i++) {
             unit = conversionTable[i].unit
             t.unitList.push(unit)
