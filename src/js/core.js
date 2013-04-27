@@ -15,22 +15,12 @@ unitConverter.core = (function(){
     // Unit Table Map
     var utMap_ = {}
     
-    /* - - - - - - - - - - - - - - - - - - - */
-    
     // Function Table containing register process 
     var utRegister_ = {}
     
-    /* - - - - - - - - - - - - - - - - - - - */
-    
-
-    
     /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
     
- 
-    /* - - - - - - - - - - - - - - - - - - - */
-    
     // Unit Table の登録処理.
-    
     utRegister_.checkMeta = function(meta) {
         if ((meta.type == null) || (meta.type == "ratio") ||
             (meta.type == "linear") || (meta.type == "function")) {
@@ -104,7 +94,7 @@ unitConverter.core = (function(){
    
     /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
     
-    // Convert Manager List.
+    // "Convert Manager List" object.
     // singleton object.
     var convertManagerList_ = (function() {
         var protoF = function() {}
@@ -143,6 +133,14 @@ unitConverter.core = (function(){
             utRegister_.register(category, meta, conversionTable)
         },
         
+        /**
+         * Get a "Convert Manager List" object.
+         * This is a singleton object. 
+         * This object has following methods.
+         *   - getCategoryNameList()
+         *   - getConvertManager(category)
+         *   - size()
+         */
         getConvertManagerList: function(){
             return convertManagerList_
         }
@@ -150,6 +148,8 @@ unitConverter.core = (function(){
     
 })()
 
+
+/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 // Converter Manager Factory.
 unitConverter.core.cmf_ = (function(){
@@ -272,6 +272,7 @@ unitConverter.core.cmf_ = (function(){
     
     /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
     
+    // Factory method for Converter.
     var createConverter_ = function(category, ut) {
         return {
             convertAll: function(unit, value) {
@@ -280,6 +281,7 @@ unitConverter.core.cmf_ = (function(){
         }
     }
     
+    // Factory method for Label Manager.
     var createLabelNameManager_ = function(category, ut) {
         return {
             getLabelFromUnit: function(unit) {
@@ -290,9 +292,13 @@ unitConverter.core.cmf_ = (function(){
     
     /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
     
+    // Publib Methods.
     return {
         
-        // Create Convert Manager.
+        /**
+         * Create a "Convert Manager" object.
+         * 
+         */
         create: function(category, ut) {
             var cache = {}
             
