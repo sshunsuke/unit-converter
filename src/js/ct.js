@@ -7,22 +7,38 @@
 
 unitConverter.conversionTable = (function(){
 
-	var createUnitTableSkeleton_ = function(type, category) {
+	var createConversionInfoSkeleton_ = function(type, category) {
 		return {
 			type: type,
 			category: category,
 			unitList: [],
-			unitInfoMap: {}
+			conversionTable: {}
 		}
 	}
 	
+	var protoConversionInfoFactoryBase_ = function(){}
+	
+	protoConversionInfoFactoryBase_.prototype.checkHeaderCommon = function(header) {
+	    //alert(header.type)
+	    //alert(this.ut.type)
+	    
+	    if ((header.type == undefined) || (header.type == this.ut.type)) {
+            return true
+        }
+        return false
+	}
+	
+	protoConversionInfoFactoryBase_.prototype.checkConversionDataCommon = function(base) {
+	    // unit の重複
+        return true
+	}
+	
+	/*
 	var checkHeaderCommon_ = function(header, type) {
-	    /*
-	    alert("ch")
-	    alert(header.type)
-	    alert(type)
-	    alert("--")
-	    */
+	    //alert("ch")
+	    //alert(header.type)
+	    //alert(type)
+	    //alert("--")
 	    
 		if ((header.type == undefined) || (header.type == type)) {
 			return true
@@ -36,7 +52,6 @@ unitConverter.conversionTable = (function(){
 		return true
 	}
 	
-	/*
 	var createUnitList_ = Function(data) {
 		var ul = []
 		for(var i = 0; i < data.length; i++) {
@@ -49,18 +64,15 @@ unitConverter.conversionTable = (function(){
 	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 	// Prototype of 
-	var protoUnitTableFactoryRatio_ = function(category) {
-		this.ut = createUnitTableSkeleton_("ratio", category)
+	var protoConversionInfoFactoryRatio_ = function(category) {
+		this.ut = createConversionInfoSkeleton_("ratio", category)
 		this.cache = {}
 	}
 	
-	protoUnitTableFactoryRatio_.prototype.common = {
-		checkHeader: checkHeaderCommon_,
-		checkConversionData: checkConversionDataCommon_
-	}
+	protoConversionInfoFactoryRatio_.prototype = new protoConversionInfoFactoryBase_()
 	
-	protoUnitTableFactoryRatio_.prototype.setHeader = function(header) {
-	    if (this.common.checkHeader(header, this.ut.type) == false) {
+	protoConversionInfoFactoryRatio_.prototype.setHeader = function(header) {
+	    if (this.checkHeaderCommon(header) == false) {
 			return false
 		}
 		
@@ -71,8 +83,8 @@ unitConverter.conversionTable = (function(){
 		return true
 	}
 	
-	protoUnitTableFactoryRatio_.prototype.setConversionData = function(data) {
-		if (this.common.checkConversionData(data) == false) {
+	protoConversionInfoFactoryRatio_.prototype.setConversionData = function(data) {
+		if (this.checkConversionDataCommon(data) == false) {
 			return false
 		}
 		
@@ -83,37 +95,33 @@ unitConverter.conversionTable = (function(){
 		return true
 	}
 	
-	protoUnitTableFactoryRatio_.prototype.create = function() {
+	protoConversionInfoFactoryRatio_.prototype.create = function() {
 		var unit
 		var data = this.cache.data
 		
 		for(var i = 0; i < data.length; i++) {
             unit = data[i].unit
             this.ut.unitList.push(unit)
-            this.ut.unitInfoMap[unit] = {
+            this.ut.conversionTable[unit] = {
             	ratio: data[i].ratio,
             	label: data[i].label || data[i].unit
             }
         }
-        
 		
 		return this.ut
 	}
 	
 	/* - - - - - - - - - - - - - - - - - - - - - - - - - */
-	
-	var protoUnitTableFactoryLinear_ = function(category) {
-		this.ut = createUnitTableSkeleton_("linear", category)
+
+	var protoConversionInfoFactoryLinear_ = function(category) {
+		this.ut = createConversionInfoSkeleton_("linear", category)
 		this.cache = {}
 	}
 	
-	protoUnitTableFactoryLinear_.prototype.common = {
-		checkHeader: checkHeaderCommon_,
-		checkConversionData: checkConversionDataCommon_
-	}
+	protoConversionInfoFactoryLinear_.prototype = new protoConversionInfoFactoryBase_()
 	
-	protoUnitTableFactoryLinear_.prototype.setHeader = function(header) {
-		if (this.common.checkHeader(header, this.ut.type) == false) {
+	protoConversionInfoFactoryLinear_.prototype.setHeader = function(header) {
+		if (this.checkHeaderCommon(header, this.ut.type) == false) {
 			return false
 		}
 		
@@ -124,8 +132,8 @@ unitConverter.conversionTable = (function(){
 		return true
 	}
 	
-	protoUnitTableFactoryLinear_.prototype.setConversionData = function(data) {
-		if (this.common.checkConversionData(data) == false) {
+	protoConversionInfoFactoryLinear_.prototype.setConversionData = function(data) {
+		if (this.checkConversionDataCommon(data) == false) {
 			return false
 		}
 		
@@ -136,7 +144,7 @@ unitConverter.conversionTable = (function(){
 		return true
 	}
 	
-	protoUnitTableFactoryLinear_.prototype.create = function() {
+	protoConversionInfoFactoryLinear_.prototype.create = function() {
 	    var unit
         var data = this.cache.data
         for(var i = 0; i < data.length; i++) {
@@ -146,13 +154,13 @@ unitConverter.conversionTable = (function(){
             // check baseunit
             if (data[i].type == "baseunit") {
                 this.ut.baseunit = unit
-                this.ut.unitInfoMap[unit] = {
+                this.ut.conversionTable[unit] = {
                     slope: 1,
                     y_intercept: 0,
                     label: data[i].label || unit
                 }
             } else {
-                this.ut.unitInfoMap[unit] = {
+                this.ut.conversionTable[unit] = {
                     slope: data[i].slope,
                     y_intercept: data[i].y_intercept,
                     label: data[i].label || unit
@@ -164,20 +172,17 @@ unitConverter.conversionTable = (function(){
 	}
 	
 	/* - - - - - - - - - - - - - - - - - - - - - - - - - */
-	
-	var protoUnitTableFactoryFunction_ = function(category) {
-		this.ut = createUnitTableSkeleton_("function", category)
+
+	var protoConversionInfoFactoryFunction_ = function(category) {
+		this.ut = createConversionInfoSkeleton_("function", category)
 		this.cache = {}
 	}
 	
-	protoUnitTableFactoryFunction_.prototype.common = {
-		checkHeader: checkHeaderCommon_,
-		checkConversionData: checkConversionDataCommon_
-	}
+	protoConversionInfoFactoryFunction_.prototype = new protoConversionInfoFactoryBase_()
 	
-	protoUnitTableFactoryFunction_.prototype.setHeader = function(header) {
+	protoConversionInfoFactoryFunction_.prototype.setHeader = function(header) {
 	    
-		if (this.common.checkHeader(header, this.ut.type) == false) {
+		if (this.checkHeaderCommon(header, this.ut.type) == false) {
 			return false
 		}
 		
@@ -188,8 +193,8 @@ unitConverter.conversionTable = (function(){
 		return true
 	}
 	
-	protoUnitTableFactoryFunction_.prototype.setConversionData = function(data) {
-		if (this.common.checkConversionData(data) == false) {
+	protoConversionInfoFactoryFunction_.prototype.setConversionData = function(data) {
+		if (this.checkConversionDataCommon(data) == false) {
 			return false
 		}
 		
@@ -198,7 +203,7 @@ unitConverter.conversionTable = (function(){
 		this.cache.data = data
 	}
 	
-	protoUnitTableFactoryFunction_.prototype.create = function() {
+	protoConversionInfoFactoryFunction_.prototype.create = function() {
 		var unit
 		var header = this.cache.header
         var data = this.cache.data
@@ -209,7 +214,7 @@ unitConverter.conversionTable = (function(){
         for(var i = 0; i < data.length; i++) {
             unit = data[i].unit
             this.ut.unitList.push(unit)
-            this.ut.unitInfoMap[unit] = {
+            this.ut.conversionTable[unit] = {
                 converters: data[i].converters,
                 label: data[i].label || data[i].unit
             }
@@ -220,113 +225,26 @@ unitConverter.conversionTable = (function(){
 	
 	/* - - - - - - - - - - - - - - - - - - - - - - - - - */
 	
-	var createUnitTableFactory = function(category, header) {
+	var createConversionInfoFactory = function(category, header) {
 	    if ((header.type == null) || (header.type == "ratio")) {
-	        return new protoUnitTableFactoryRatio_(category)
+	        return new protoConversionInfoFactoryRatio_(category)
 	    } else if (header.type == "linear") {
-            return new protoUnitTableFactoryLinear_(category)
+            return new protoConversionInfoFactoryLinear_(category)
         } else if (header.type == "function") {
-            return new protoUnitTableFactoryFunction_(category)
+            return new protoConversionInfoFactoryFunction_(category)
         }
 	    return null
 	}
 	
 	/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
     
-    
-    
-    
-    
-    
-    /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
-   
-    /*
-    // Function Table containing register process 
-    var utRegister_ = {}
-    
-    // Unit Table の登録処理.
-    utRegister_.checkMeta = function(meta) {
-        if ((meta.type == null) || (meta.type == "ratio") ||
-            (meta.type == "linear") || (meta.type == "function")) {
-            return true    
-        }
-        return false
-    }
-   
-    utRegister_.unitInfo = function(type, unitDefinition) {
-        var unitInfo = {}
+    return function(category, meta, conversionData) {
+        var cif = createConversionInfoFactory(category, meta)
         
-        if (type == "ratio") {
-            unitInfo.ratio = unitDefinition.ratio
-        } else if (type == "linear") {
-            unitInfo.slope = unitDefinition.slope
-            unitInfo.y_intercept = unitDefinition.y_intercept
-        } else if (type == "function") {
-            unitInfo.converters = unitDefinition.converters
-        } else {
-            alert("error: xx")
-        }
+        cif.setHeader(meta)
+        cif.setConversionData(conversionData)
         
-        unitInfo.label = unitDefinition.label || unitDefinition.unit
-        
-        return unitInfo
-    }
-  
-    utRegister_.register = function(category, meta, conversionTable) {
-        var i
-        var unit
-
-        // あれこれプリプロセス処理を追加する予定
-
-        // unitList のチェックとか
-
-        var t = {
-            unitList : [],
-            unitInfoMap : {}
-        }
-        
-        if (!utRegister_.checkMeta(meta)) {
-            alert("error: meta")
-        }
-
-        // Default 値のセット
-        t.type = meta.type || "ratio"
-
-        if (t.type == "linear") {
-            for (i = 0; i < conversionTable.length; i++) {
-                if (conversionTable[i].type == "baseunit") {
-                    t.baseunit = conversionTable[i].unit
-                    conversionTable[i].slope = 1
-                    conversionTable[i].y_intercept = 0
-                    break
-                }
-            }
-        } else if (t.type == "function") {
-            t.arg = meta.arg || "bigDecimal"
-            t.initialValue = meta.initialValue
-        }
-
-        // 実際の登録処理
-        for(i = 0; i < conversionTable.length; i++) {
-            unit = conversionTable[i].unit
-            t.unitList.push(unit)
-            t.unitInfoMap[unit] = utRegister_.unitInfo(t.type, conversionTable[i])
-        }
-        
-        //utMap_[category] = t
-        unitConverter.core.registerUnittable(category, t)
-    }
-    */
-    
-    return function(category, meta, conversionTable) {
-        //utRegister_.register(category, meta, conversionTable)
-        
-        var utf = createUnitTableFactory(category, meta)
-        
-        utf.setHeader(meta)
-        utf.setConversionData(conversionTable)
-        
-        unitConverter.core.registerUnittable(category, utf.create())
+        unitConverter.core.registerConversionInfo(category, cif.create())
     }
 }())
 

@@ -12,8 +12,8 @@ unitConverter = {}
 
 unitConverter.core = (function(){
     
-    // Unit Table Map
-    var utMap_ = {}
+    // Conversion Info Map
+    var ciMap_ = {}
     
     /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
     
@@ -24,8 +24,8 @@ unitConverter.core = (function(){
         
         protoF.prototype.getCategoryNameList = function() {
             var list = []
-            for(var k in utMap_) {
-                if(utMap_.hasOwnProperty(k)) {
+            for(var k in ciMap_) {
+                if(ciMap_.hasOwnProperty(k)) {
                     list.push(k)
                 }
             }
@@ -33,14 +33,14 @@ unitConverter.core = (function(){
         }
         
         protoF.prototype.getConvertManager = function(category) {
-            if (utMap_[category] == null) {
+            if (ciMap_[category] == null) {
                 return null
             }
-            return unitConverter.core.cmf_.create(category, utMap_[category])
+            return unitConverter.core.cmf_.create(category, ciMap_[category])
         }
         
         protoF.prototype.size = function(){
-            return utMap_.length
+            return ciMap_.length
         }
         
         return new protoF() 
@@ -52,8 +52,8 @@ unitConverter.core = (function(){
     return {
         SCALE: 20,
         
-        registerUnittable: function(category, ut) {
-            utMap_[category] = ut
+        registerConversionInfo: function(category, ci) {
+            ciMap_[category] = ci
         },
         
         /**
@@ -81,16 +81,16 @@ unitConverter.core.cmf_ = (function(){
     var convertLogic_ = {}
     
     // A function to do actual conversion
-    convertLogic_.convertAll = function(category, ut, unit, value) {
+    convertLogic_.convertAll = function(category, ci, unit, value) {
         var resultTable = {}
         
         try {
-            if (ut.type == "ratio") {
-                resultTable = convertLogic_.ratioAll(ut, unit, value)
-            } else if (ut.type == "linear") {
-                resultTable = convertLogic_.linearAll(ut, unit, value)
-            } else if (ut.type == "function") {
-                resultTable = convertLogic_.functionAll(ut, unit, value)
+            if (ci.type == "ratio") {
+                resultTable = convertLogic_.ratioAll(ci, unit, value)
+            } else if (ci.type == "linear") {
+                resultTable = convertLogic_.linearAll(ci, unit, value)
+            } else if (ci.type == "function") {
+                resultTable = convertLogic_.functionAll(ci, unit, value)
             } else {
                 alert("error")
             }
@@ -103,20 +103,20 @@ unitConverter.core.cmf_ = (function(){
     }
     
     // 
-    convertLogic_.ratioAll = function(ut, unit, value) {
-        var unitList, unitInfoMap
+    convertLogic_.ratioAll = function(ci, unit, value) {
+        var unitList, conversionTable
         var from, to, unitName
         var resultTable = {}
 
-        unitList = ut.unitList
-        unitInfoMap = ut.unitInfoMap
+        unitList = ci.unitList
+        conversionTable = ci.conversionTable
         
-        from = new Big( unitInfoMap[unit].ratio )
+        from = new Big( conversionTable[unit].ratio )
         value = new Big(value)
 
         for(var i = 0; i < unitList.length; i++) {
             unitName = unitList[i]
-            to = new Big(unitInfoMap[unitName].ratio)
+            to = new Big(conversionTable[unitName].ratio)
             
             // value * to / from
             result = value.times(to).div(from).round(unitConverter.core.SCALE)
@@ -129,18 +129,18 @@ unitConverter.core.cmf_ = (function(){
     }
     
     // 
-    convertLogic_.linearAll = function(ut, unit, value) {
+    convertLogic_.linearAll = function(ci, unit, value) {
         var unitName, unitInfo
         var uSlope, uY_intercept
         var resultTable = {}
         
-        var unitList = ut.unitList
-        var unitInfoMap = ut.unitInfoMap
+        var unitList = ci.unitList
+        var conversionTable = ci.conversionTable
         
         var basevalue = (function() {
             var v = new Big(value)
-            var slope = new Big(unitInfoMap[unit].slope)
-            var y_intercept = new Big(unitInfoMap[unit].y_intercept)
+            var slope = new Big(conversionTable[unit].slope)
+            var y_intercept = new Big(conversionTable[unit].y_intercept)
             
             //   (1 / slope * value) - (y_intercept / slope)
             // = (value - y_intercept) / slope
@@ -149,7 +149,7 @@ unitConverter.core.cmf_ = (function(){
         
         for(var i = 0; i < unitList.length; i++) {
             unitName = unitList[i]
-            unitInfo = unitInfoMap[unitName]
+            unitInfo = conversionTable[unitName]
             
             if (unitName == unit) {
                 resultTable[unitName] = value
@@ -169,12 +169,12 @@ unitConverter.core.cmf_ = (function(){
         return resultTable
     }
     
-    convertLogic_.functionAll = function(ut, unit, value) {
+    convertLogic_.functionAll = function(ci, unit, value) {
         var unitName
         var resultTable = {}
-        var unitList = ut.unitList
-        var unitInfoMap = ut.unitInfoMap
-        var converters = ut.unitInfoMap[unit].converters
+        var unitList = ci.unitList
+        var conversionTable = ci.conversionTable
+        var converters = ci.conversionTable[unit].converters
         
         value = new Big(value)
 
@@ -196,19 +196,19 @@ unitConverter.core.cmf_ = (function(){
     /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
     
     // Factory method for Converter.
-    var createConverter_ = function(category, ut) {
+    var createConverter_ = function(category, ci) {
         return {
             convertAll: function(unit, value) {
-                return convertLogic_.convertAll(category, ut, unit, value)
+                return convertLogic_.convertAll(category, ci, unit, value)
             }
         }
     }
     
     // Factory method for Label Manager.
-    var createLabelNameManager_ = function(category, ut) {
+    var createLabelNameManager_ = function(category, ci) {
         return {
             getLabelFromUnit: function(unit) {
-                return ut.unitInfoMap[unit].label
+                return ci.conversionTable[unit].label
             }
         }
     }
@@ -222,24 +222,24 @@ unitConverter.core.cmf_ = (function(){
          * Create a "Convert Manager" object.
          * 
          */
-        create: function(category, ut) {
+        create: function(category, ci) {
             var cache = {}
             
             return {
                 getUnitNameList: function() {
-                    return ut.unitList
+                    return ci.unitList
                 },
                 
                 getConverter: function() {
                     if (cache.converter == null) {
-                        cache.converter = createConverter_(category, ut)
+                        cache.converter = createConverter_(category, ci)
                     }
                     return cache.converter
                 },
                              
                 getLabelNameManager: function() {
                     if (cache.lnm == null) {
-                        cache.lnm = createLabelNameManager_(category, ut)
+                        cache.lnm = createLabelNameManager_(category, ci)
                     }
                     return cache.lnm
                 },
