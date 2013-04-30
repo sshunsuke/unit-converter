@@ -85,8 +85,8 @@ unitConverter.core.cmf_ = (function(){
         var resultTable = {}
         
         try {
-            if (ci.type == "ratio") {
-                resultTable = convertLogic_.ratioAll(ci, unit, value)
+            if (ci.type == "ratioSimple") {
+                resultTable = convertLogic_.ratioSimpleAll(ci, unit, value)
             } else if (ci.type == "linear") {
                 resultTable = convertLogic_.linearAll(ci, unit, value)
             } else if (ci.type == "function") {
@@ -103,7 +103,7 @@ unitConverter.core.cmf_ = (function(){
     }
     
     // 
-    convertLogic_.ratioAll = function(ci, unit, value) {
+    convertLogic_.ratioSimpleAll = function(ci, unit, value) {
         var unitList, conversionTable
         var from, to, unitName
         var resultTable = {}
