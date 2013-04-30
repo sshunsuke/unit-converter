@@ -87,6 +87,8 @@ unitConverter.core.cmf_ = (function(){
         try {
             if (ci.type == "ratioSimple") {
                 resultTable = convertLogic_.ratioSimpleAll(ci, unit, value)
+            } else if (ci.type == "ratio") {
+                resultTable = convertLogic_.ratioAll(ci, unit, value)
             } else if (ci.type == "linear") {
                 resultTable = convertLogic_.linearAll(ci, unit, value)
             } else if (ci.type == "function") {
@@ -125,6 +127,29 @@ unitConverter.core.cmf_ = (function(){
             resultTable[unitName] = result.toString()  // .replace(/\.?0+$/, "")
         }
 
+        return resultTable
+    }
+    
+    convertLogic_.ratioAll = function(ci, unit, value) {
+        var unitName
+        var resultTable = {}
+        var unitList = ci.unitList
+        var conversionTable = ci.conversionTable
+        var ratio = ci.conversionTable[unit].ratio
+        
+        value = new Big(value)
+
+        for (var i = 0; i < unitList.length; i++) {
+            unitName = unitList[i]
+            
+            if (unitName == unit) {
+                resultTable[unitName] = value.toString()
+            } else {
+                // resultTable[unitName] = converters[unitName](value).toString()
+                resultTable[unitName] = (new Big(ratio[unitName])).times(value).toString()
+            }
+        }
+        
         return resultTable
     }
     

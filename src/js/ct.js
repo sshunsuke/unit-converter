@@ -84,6 +84,56 @@ unitConverter.conversionTable = (function(){
     }
     
     /* - - - - - - - - - - - - - - - - - - - - - - - - - */
+    
+    var protoConversionInfoFactoryRatio_ = function(category) {
+        this.ci = createConversionInfoSkeleton_("ratio", category)
+        this.cache = {}
+    }
+    
+    protoConversionInfoFactoryRatio_.prototype = new protoConversionInfoFactoryBase_()
+    
+    protoConversionInfoFactoryRatio_.prototype.setHeader = function(header) {
+        if (this.checkHeaderCommon(header) == false) {
+            return false
+        }
+        
+        // header check (linear)
+        
+        this.cache.header = header
+        
+        return true
+    }
+    
+    protoConversionInfoFactoryRatio_.prototype.setConversionData = function(data) {
+        if (this.checkConversionDataCommon(data) == false) {
+            return false
+        }
+        
+        // check data.
+        
+        this.cache.data = data
+        
+        return true
+    }
+    
+    protoConversionInfoFactoryRatio_.prototype.create = function() {
+        var unit
+        var data = this.cache.data
+        
+        for(var i = 0; i < data.length; i++) {
+            unit = data[i].unit
+            this.ci.unitList.push(unit)
+            this.ci.conversionTable[unit] = {
+                ratio: data[i].ratio,
+                label: data[i].label || data[i].unit
+            }
+        }
+        
+        return this.ci
+    }
+    
+    
+    /* - - - - - - - - - - - - - - - - - - - - - - - - - */
 
     var protoConversionInfoFactoryLinear_ = function(category) {
         this.ci = createConversionInfoSkeleton_("linear", category)
@@ -200,6 +250,8 @@ unitConverter.conversionTable = (function(){
     var createConversionInfoFactory = function(category, header) {
         if ((header.type == null) || (header.type == "ratioSimple")) {
             return new protoConversionInfoFactoryRatioSimple_(category)
+        } else if (header.type == "ratio") {
+            return new protoConversionInfoFactoryRatio_(category)
         } else if (header.type == "linear") {
             return new protoConversionInfoFactoryLinear_(category)
         } else if (header.type == "function") {
