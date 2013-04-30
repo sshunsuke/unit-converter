@@ -3,7 +3,7 @@
  */
 unitConverter.conversionTable(
     // Category Name (mandatory)
-    "temperature",
+    "temperature_linear",
     
     // Meta Data 
     { type: "linear"},
