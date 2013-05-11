@@ -70,6 +70,6 @@ unitConverter.conversionTable(
             mm: function(ft) { return ft.times(304.8) },
             inch: function(ft) { return ft.times(12) }
             }
-        },
+        }
     ]
 )

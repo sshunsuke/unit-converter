@@ -1,0 +1,220 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>check jQuery</title>
+<script type="text/javascript" src="../src/lib/jquery-1.9.1.js"></script>
+<script type="text/javascript">
+sb = (function(){    // StringBuffer
+    var str = ""
+    var indentStr = "    "
+    
+    return {
+    	append: function(s) {
+    		s = s || ""
+    		str = str + s
+    	},
+    	
+    	appendWithIndent: function(s, indentLevel) {
+        	s = s || ""
+        	indentLevel = indentLevel || 0
+        	var indent = ""
+        	for (var i=0; i < indentLevel; i++) {
+        		indent = indent + indentStr
+        	}
+        	sb.append(indent + s)
+        },
+        
+        appendLine: function(s) {
+            s = s || ""
+            sb.append(s + '\n')
+        },
+        
+        appendLineWithIndent: function(s, indentLevel) {
+        	s = s || ""
+        	sb.appendWithIndent(s + '\n', indentLevel)
+        },
+                
+        toString: function() {
+            return str
+        }
+    }
+})()
+
+
+/*
+var conversion = {
+	m: {
+		km: {value: 1000, div: true },      // 1m = 1/1000 km
+		mm: {value: 1000 },                 // 1m = 1000 mm
+		inch: {value: 0.0254, div: true },  // 1m = 1/0.0254 inch 
+		ft: {value: 0.3048, div: true }     // 1m = 1/0.3048 ft
+	},
+	km: {
+		mm: {value: 1000000 },                 // 1km = 1000000 mm
+		inch: {value: 0.0000254, div: true },  // 1km = 1/0.0000254 inch 
+		ft: {value: 0.0003048, div: true }     // 1km = 1/0.0003048 ft
+	},
+	mm: {
+		inch: {value: 25.4, div: true },       // 1mm = 1/25.4 inch 
+		ft: {value: 304.8, div: true }         // 1mm = 1/304.8 ft
+	},
+	inch: {
+		ft: {value: 12 }         // 1nch = 12 ft
+	}
+}
+*/
+
+var conversion = {
+	kg: {
+		g: {value: 1000 },                    // 1kg = 1000g
+		mg: {value: 1000000 },                // 1kg = 1000000 mg
+		ton: {value: 1000, div: true },       // 1kg = 1/1000 ton
+		lb: {value: 0.45359237, div: true }   // 1kg = 1/0.45359237 lb
+	},
+	g: {
+		mg: {value: 1000 },                    // 1g = 1000 mg
+		ton: {value: 1000000, div: true },     // 1g = 1/1000000 ton 
+		lb: {value: 453.59237, div: true }     // 1km = 1/453.59237 lb
+	},
+	mg: {
+		ton: {value: 1000000000, div: true },  // 1mg = 1/1000000000 ton 
+		lb: {value: 453592.37, div: true }     // 1mg = 1/453592.37 lb
+	},
+	ton: {
+		lb: {value: 0.00045359237, div: true }   // 1ton = 1/0.00045359237 lb
+	}
+}
+
+
+
+
+// conversionFunctions
+var cf = (function() {
+	var from, to
+	var cf = {}
+	
+	var newTable = function(t, k) {
+		if ( !t[k] ) {
+			t[k] = {}
+		}
+	}
+	
+	var functionFromTo = function(from, to, value, div) {
+		var s = to + ": function(" + from + ") { return "
+		if (div) {
+			s = s + from + ".div("
+		} else {
+			s = s + from + ".times("
+		}
+		s = s + value + ") }"
+		return s
+	}
+	var functionToFrom = function(from, to, value, div) {
+		var s = from + ": function(" + to + ") { return "
+		if (!div) {
+			s = s + to + ".div("
+		} else {
+			s = s + to + ".times("
+		}
+		s = s + value + ") }"
+		return s
+	}
+	
+	
+	for ( from in conversion ) {
+		if ( conversion.hasOwnProperty(from) ) {
+			for ( to in conversion[from] ) {
+				if ( conversion[from].hasOwnProperty(to) ) {
+					newTable(cf, from)
+					newTable(cf, to)
+					newTable(cf[from], to)
+					newTable(cf[to], from)
+				}
+			}
+		}
+	}
+	
+	for ( from in conversion ) {
+		if ( conversion.hasOwnProperty(from) ) {
+			for ( to in conversion[from] ) {
+				if ( conversion[from].hasOwnProperty(to) ) {
+					cf[from][to] = functionFromTo(from, to, conversion[from][to].value, conversion[from][to].div)
+					cf[to][from] = functionToFrom(from, to, conversion[from][to].value, conversion[from][to].div)
+				}
+			}
+		}
+	}
+	
+	return cf
+})()
+
+
+window.onload = function() {
+	var isFirst, isFirst2
+	
+	sb.appendLine( "/**" )
+	sb.appendLine( " * Conversion Table of Weight." )
+	sb.appendLine( " */" )
+	
+	sb.appendLine( "unitConverter.conversionTable(" )
+	
+	sb.appendLineWithIndent( "// Category Name (mandatory)", 1 )
+	sb.appendLineWithIndent( '"weight_func",', 1)
+	sb.appendLine( "" )
+	
+	sb.appendLineWithIndent( "// Meta Data", 1 )
+	sb.appendLineWithIndent( "{ type: \"function\",", 1)
+	sb.appendLineWithIndent( "  arg: \"bigDecimal\",", 1)
+	sb.appendLineWithIndent( "  initialValue: { unit: \"kg\", value: 1 }", 1)
+	sb.appendLineWithIndent( "},", 1 )
+	sb.appendLine( "" )
+	
+	sb.appendLineWithIndent( "// difinition of unit.", 1 )
+	sb.appendLineWithIndent( "[", 1 )
+	
+	isFirst = true
+	
+	for ( from in cf ) {
+		if ( cf.hasOwnProperty(from) ) {
+			if (isFirst) {
+				isFirst = false
+			} else {
+				sb.appendLine( "," )
+			}
+			
+			isFirst2 = true
+			for ( to in cf[from] ) {
+				if ( cf[from].hasOwnProperty(to) ) {
+					if (isFirst2) {
+						sb.appendLineWithIndent( "{", 2 )
+						sb.appendLineWithIndent( "unit: \"" + from + "\",", 3 )
+						sb.appendLineWithIndent( "converters: {", 3 )
+						isFirst2 = false
+					} else {
+						sb.appendLine(",")
+					}
+					sb.appendWithIndent( cf[from][to], 4 )
+				}
+			}
+			sb.appendLine( "" )
+			sb.appendLineWithIndent( "}", 3 )
+		}
+		sb.appendWithIndent( "}", 2 )
+	}
+	
+	sb.appendLine( "" )
+	sb.appendLineWithIndent( "]", 1 )
+	
+	sb.appendLine( ")" )
+
+    
+    document.getElementById('output').value = sb.toString()
+}
+</script>
+</head>
+<body>
+    <form><textarea id="output" cols="100" rows="50"></textarea></form>
+</body>
+</html>
+
+
