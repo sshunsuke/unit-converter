@@ -2,16 +2,17 @@
  * Conversion Table of Weight.
  */
 unitConverter.conversionTable(
+	
     // Category Name (mandatory)
     "weight_func",
 
-    // Meta Data
+    // Header Data
     { type: "function",
-      arg: "bigDecimal",
+      arg: "big.js",
       initialValue: { unit: "kg", value: 1 }
     },
 
-    // difinition of unit.
+    // Data for Unit Conversion.
     [
         {
             unit: "kg",

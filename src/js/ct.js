@@ -209,7 +209,7 @@ unitConverter.conversionTable = (function(){
         var data = this.cache.data
         var ut = createConversionInfoSkeleton_(this.type, this.category)
         
-        ut.arg = header.arg || "bigDecimal"
+        ut.arg = header.arg || "big.js"
         ut.initialValue = header.initialValue
         
         for(var i = 0; i < data.length; i++) {

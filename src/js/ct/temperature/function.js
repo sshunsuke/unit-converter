@@ -2,16 +2,17 @@
  * Conversion Table of Temperature.
  */
 unitConverter.conversionTable(
+	
     // Category Name (mandatory)
     "temperature",
     
-    // Meta Data 
+    // Header Data 
     { type: "function",
-      arg: "bigDecimal",
+      arg: "big.js",
       initialValue: { unit: "C", value: 0 }
     },
     
-    // difinition of unit.
+    // Data for Unit Conversion.
     [
         {unit: "K",
          converters: {

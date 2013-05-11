@@ -2,10 +2,11 @@
  * Conversion Table of Temperature.
  */
 unitConverter.conversionTable(
+	
     // Category Name (mandatory)
     "temperature_linear",
     
-    // Meta Data 
+    // Header Data 
     { type: "linear"},
     
     // difinition of unit.

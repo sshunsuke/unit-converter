@@ -2,13 +2,14 @@
  * Conversion Table of Length.
  */
 unitConverter.conversionTable(
+	
     // Category Name (mandatory)
     "length",
     
-    // Meta Data (reserved)
+    // Header Data (reserved)
     {},
     
-    // difinition of unit.
+    // Difinition of unit.
     [
         {unit: "m", ratio: 1},
         {unit: "km", ratio: 0.001},

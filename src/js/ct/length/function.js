@@ -2,16 +2,17 @@
  * Conversion Table of Temperature.
  */
 unitConverter.conversionTable(
+	
     // Category Name (mandatory)
     "length_func",
     
-    // Meta Data 
+    // Header Data 
     { type: "function",
-      arg: "bigDecimal",
+      arg: "big.js",
       initialValue: { unit: "m", value: 1 }
     },
     
-    // difinition of unit.
+    // Data for Unit Conversion.
     [
         {unit: "m",
          converters: {

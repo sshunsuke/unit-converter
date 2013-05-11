@@ -2,10 +2,11 @@
  * Conversion Table of Weight.
  */
 unitConverter.conversionTable(
+	
     // Category Name (mandatory)
     "weight",
     
-    // Meta Data (reserved)
+    // Header Data (reserved)
     {},
     
     // difinition of unit.
