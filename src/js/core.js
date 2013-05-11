@@ -1,6 +1,27 @@
 /**
- * Core function of Unit Converter.
+ * Core features of Unit Converter.
  * This script must be loaded just after loading librarys.
+ * 
+ * Core features are provide through OOP style interface.
+ * Following are key objects in the core interface.
+ *   - ConvertManagerList
+ *     - ConvertManager
+ *       - Converter
+ *       - UnitList
+ * 
+ * And, below is typical code of unit conversion.
+ *   cml = unitConverter.core.getConvertManagerList();
+ *   cm = cml.getConvertManager( "categoryName" );
+ *   converter = cm.getConverter();
+ *   result = converter.convertAll("unitFrom", valueFrom);
+ * 
+ *   str = ""
+ *   for (unit in result) {
+ * 	   if ( result.hasOwnProperty(unit) ) {
+ * 	     str = str + unit + ": " + result[unit] + "¥n";
+ *     }
+ *   }
+ *   alert(str)
  * 
  * @author  Shunsuke
  */
@@ -17,34 +38,30 @@ unitConverter.core = (function(){
     
     /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
     
-    // "Convert Manager List" object.
-    // singleton object.
-    var convertManagerList_ = (function() {
-        var protoF = function() {}
-        
-        protoF.prototype.getCategoryNameList = function() {
-            var list = []
-            for(var k in ciMap_) {
-                if(ciMap_.hasOwnProperty(k)) {
-                    list.push(k)
-                }
+    // prototype object of "Convert Manager List".
+    
+    var protoConvertManagerList_ = function() {}
+    
+    protoConvertManagerList_.prototype.getCategoryNameList = function() {
+        var list = []
+        for(var k in ciMap_) {
+        	if (ciMap_.hasOwnProperty(k)) {
+        		list.push(k)
             }
-            return list
         }
-        
-        protoF.prototype.getConvertManager = function(category) {
-            if (ciMap_[category] == null) {
-                return null
-            }
-            return unitConverter.core.cmf_.create(category, ciMap_[category])
+        return list
+    }
+    
+    protoConvertManagerList_.prototype.getConvertManager = function(category) {
+        if (ciMap_[category] == null) {
+            return null
         }
+        return unitConverter.core.cmf_.create(category, ciMap_[category])
+    }
         
-        protoF.prototype.size = function(){
-            return ciMap_.length
-        }
-        
-        return new protoF() 
-    })()
+    protoConvertManagerList_.prototype.size = function(){
+        return ciMap_.length
+    }
     
     /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
     
@@ -58,14 +75,15 @@ unitConverter.core = (function(){
         
         /**
          * Get a "Convert Manager List" object.
-         * This is a singleton object. 
-         * This object has following methods.
-         *   - getCategoryNameList()
-         *   - getConvertManager(category)
-         *   - size()
+         * 
+         * @return a ConvertManagerList object
+         *         This object has following methods.
+         *           - getCategoryNameList()
+         *           - getConvertManager(category)
+         *           - size()
          */
         getConvertManagerList: function(){
-            return convertManagerList_
+            return new protoConvertManagerList_()
         }
     }
     
@@ -220,7 +238,10 @@ unitConverter.core.cmf_ = (function(){
         
         /**
          * Create a "Convert Manager" object.
-         * 
+         * @param category
+         * @param ci       ConversionInfo
+         *                 (this is internal data using inside of core modules)
+         * @return object of Converter Manager
          */
         create: function(category, ci) {
             var cache = {}
