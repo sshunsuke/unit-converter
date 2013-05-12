@@ -1,10 +1,10 @@
 /**
- * Conversion Table of Temperature.
+ * Conversion Table of Length.
  */
 unitConverter.conversionTable(
 	
     // Category Name (mandatory)
-    "Length",
+    "length_func",
     
     // Header Data 
     { type: "function",

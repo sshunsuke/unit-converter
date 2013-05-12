@@ -26,8 +26,10 @@
  * @author  Shunsuke
  */
 
+//'use strict';
+
 // All Unit Converter objects should point back to these.
-unitConverter = {}
+var unitConverter = {}
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 

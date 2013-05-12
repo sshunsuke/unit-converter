@@ -11,6 +11,8 @@
  * @author  Shunsuke
  */
 
+//'use strict';
+
 unitConverter.conversionTable = (function(){
 
     var createConversionInfoSkeleton_ = function(type, category) {
@@ -102,7 +104,6 @@ unitConverter.conversionTable = (function(){
     
     /* - - - - - - - - - - - - - - - - - - - - - - - - - */
     
-    /*
     var protoConversionInfoGeneratorRatio_ = function(category) {
         this.type = "ratio"
         this.category = category
@@ -111,7 +112,119 @@ unitConverter.conversionTable = (function(){
     
     protoConversionInfoGeneratorRatio_.prototype = new protoConversionInfoGeneratorBase_()
     
-    */
+    protoConversionInfoGeneratorRatio_.prototype.setHeader = function(header) {
+        if (this.checkHeaderCommon(header) == false) {
+            return false
+        }
+        
+        // header check (linear)
+        
+        this.cache.header = header
+        
+        return true
+    }
+    
+    protoConversionInfoGeneratorRatio_.prototype.setConversionData = function(data) {
+        if (this.checkConversionDataCommon(data) == false) {
+            return false
+        }
+        
+        // check data.
+        
+        this.cache.data = data
+        
+        /*
+        var newTable = function(t, k) {
+        	if ( !t[k] ) { t[k] = {} }
+	    }
+	    
+	    var generateConverterFunction = function(value, div) {
+	    	if (div) {
+	    		return function(bigDecimal) { return bigDecimal.div(value) }
+	    	}
+	    	return function(bigDecimal) { return bigDecimal.times(value) }
+	    }
+        
+        var ft = {}
+        var from, to, converter
+        
+        for (var i = 0; i < data.length; i++) {
+        	from = data[i].unit
+        	for (to in data[i].converters) {
+        		if ( data[i].converters.hasOwnProperty(to) ) {
+        			converter = data[i].converters[to]
+        			newTable(ft, from)
+        			newTable(ft, to)
+        			newTable(ft[from], to)
+        			newTable(ft[to], from)
+        			ft[from][to] = functionFromTo(converter.value, converter.div)
+        			ft[to][from] = functionFromTo(converter.value, !(converter.div))
+        		}
+        	}
+        	
+        	if (data[i].label) {
+        		
+        	}
+        }
+        
+        this.cache.ft = ft
+        */
+        
+        return true
+    }
+    
+    protoConversionInfoGeneratorRatio_.prototype.create = function() {
+        var fromUnit, toUnit, fromLabel, converter
+        var data = this.cache.data
+        var ci = createConversionInfoSkeleton_("function", this.category)
+        var ct = ci.conversionTable
+        
+        var newTable = function(t, k) {
+        	if ( !t[k] ) {
+        		t[k] = { converters: {} }
+        	}
+	    }
+	    
+	    var generateConverterFunction = function(value, div) {
+	    	if (div) {
+	    		return function(bigDecimal) { return bigDecimal.div(value) }
+	    	}
+	    	return function(bigDecimal) { return bigDecimal.times(value) }
+	    }
+        
+        for (var i = 0; i < data.length; i++) {
+        	ci.unitList.push(data[i].unit)
+        	
+        	fromUnit = data[i].unit
+        	fromLabel = data[i].label
+        	
+        	newTable(ct, fromUnit)
+        	ct[fromUnit].label = fromLabel || fromUnit
+        	
+        	//alert(data[i].unit)
+        	//alert(data[i].label)
+        	
+        	if ( !data[i].hasOwnProperty("converters") ) {
+        		if (i != data.length - 1) { alert("error: table format") }
+        		continue;
+        	}
+        	
+        	for (toUnit in data[i].converters) {
+        		if ( data[i].converters.hasOwnProperty(toUnit) ) {
+        			//alert(toUnit)
+        			converter = data[i].converters[toUnit]
+        			newTable(ct, toUnit)
+        			ct[fromUnit].converters[toUnit] = generateConverterFunction(converter.value, converter.div)
+        			ct[toUnit].converters[fromUnit] = generateConverterFunction(converter.value, !(converter.div))
+        		}
+        	}
+        	
+        	//alert("---")
+        }
+        
+        return ci
+    }
+    
     
     /* - - - - - - - - - - - - - - - - - - - - - - - - - */
 
@@ -242,6 +355,8 @@ unitConverter.conversionTable = (function(){
     var createConversionInfoGenerator = function(category, header) {
         if ((header.type == null) || (header.type == "RatioLite")) {
             return new protoConversionInfoGeneratorRatioLite_(category)
+        } else if (header.type == "ratio") {
+            return new protoConversionInfoGeneratorRatio_(category)
         } else if (header.type == "linear") {
             return new protoConversionInfoGeneratorLinear_(category)
         } else if (header.type == "function") {
@@ -261,5 +376,5 @@ unitConverter.conversionTable = (function(){
         unitConverter.core.registerConversionInfo(category, cig.create())
     }
     
-}())
+})()
 
