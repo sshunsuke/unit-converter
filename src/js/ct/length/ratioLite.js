@@ -4,12 +4,13 @@
 unitConverter.conversionTable(
 	
     // Category Name (mandatory)
-    "length",
+    "length_ratioLite",
     
     // Header Data (reserved)
     {},
     
     // Difinition of unit.
+    //   1m = 0.001km = 100cm = 1000m = ...
     [
         {unit: "m", ratio: 1},
         {unit: "km", ratio: 0.001},

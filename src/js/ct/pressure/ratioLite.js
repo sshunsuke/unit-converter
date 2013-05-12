@@ -5,7 +5,7 @@ unitConverter.conversionTable(
     // Category Name (mandatory)
     "pressure",
     
-    // Meta Data (reserved)
+    // Header Data (reserved)
     {},
     
     // difinition of unit.

@@ -4,7 +4,7 @@
 unitConverter.conversionTable(
 	
     // Category Name (mandatory)
-    "length_func",
+    "Length",
     
     // Header Data 
     { type: "function",

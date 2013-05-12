@@ -48,19 +48,18 @@ unitConverter.conversionTable = (function(){
     /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
     /**
-     * Class of ConversionInfoGenerator to generate ConversionInfo from ratio.
+     * Class of ConversionInfoGenerator to generate ConversionInfo from RatioLite.
      */
     
-    var protoConversionInfoGeneratorRatio_ = function(category) {
-        // this.ut = createConversionInfoSkeleton_("ratio", category)
-        this.type = "ratio"
+    var protoConversionInfoGeneratorRatioLite_ = function(category) {
+        this.type = "ratioLite"
         this.category = category
         this.cache = {}
     }
     
-    protoConversionInfoGeneratorRatio_.prototype = new protoConversionInfoGeneratorBase_()
+    protoConversionInfoGeneratorRatioLite_.prototype = new protoConversionInfoGeneratorBase_()
     
-    protoConversionInfoGeneratorRatio_.prototype.setHeader = function(header) {
+    protoConversionInfoGeneratorRatioLite_.prototype.setHeader = function(header) {
         if (this.checkHeaderCommon(header) == false) {
             return false
         }
@@ -72,7 +71,7 @@ unitConverter.conversionTable = (function(){
         return true
     }
     
-    protoConversionInfoGeneratorRatio_.prototype.setConversionData = function(data) {
+    protoConversionInfoGeneratorRatioLite_.prototype.setConversionData = function(data) {
         if (this.checkConversionDataCommon(data) == false) {
             return false
         }
@@ -84,7 +83,7 @@ unitConverter.conversionTable = (function(){
         return true
     }
     
-    protoConversionInfoGeneratorRatio_.prototype.create = function() {
+    protoConversionInfoGeneratorRatioLite_.prototype.create = function() {
         var unit
         var data = this.cache.data
         var ut = createConversionInfoSkeleton_(this.type, this.category)
@@ -102,13 +101,25 @@ unitConverter.conversionTable = (function(){
     }
     
     /* - - - - - - - - - - - - - - - - - - - - - - - - - */
+    
+    /*
+    var protoConversionInfoGeneratorRatio_ = function(category) {
+        this.type = "ratio"
+        this.category = category
+        this.cache = {}
+    }
+    
+    protoConversionInfoGeneratorRatio_.prototype = new protoConversionInfoGeneratorBase_()
+    
+    */
+    
+    /* - - - - - - - - - - - - - - - - - - - - - - - - - */
 
     /**
      * Class of ConversionInfoGenerator to generate ConversionInfo from linear.
      */
     
     var protoConversionInfoGeneratorLinear_ = function(category) {
-        // this.ut = createConversionInfoSkeleton_("linear", category)
         this.type = "linear"
         this.category = category
         this.cache = {}
@@ -172,7 +183,6 @@ unitConverter.conversionTable = (function(){
     /* - - - - - - - - - - - - - - - - - - - - - - - - - */
 
     var protoConversionInfoGeneratorFunction_ = function(category) {
-        // this.ut = createConversionInfoSkeleton_("function", category)
         this.type = "function"
         this.category = category
         this.cache = {}
@@ -230,8 +240,8 @@ unitConverter.conversionTable = (function(){
      * Factory Method of ConversionInfoGenerator.
      */
     var createConversionInfoGenerator = function(category, header) {
-        if ((header.type == null) || (header.type == "ratio")) {
-            return new protoConversionInfoGeneratorRatio_(category)
+        if ((header.type == null) || (header.type == "RatioLite")) {
+            return new protoConversionInfoGeneratorRatioLite_(category)
         } else if (header.type == "linear") {
             return new protoConversionInfoGeneratorLinear_(category)
         } else if (header.type == "function") {

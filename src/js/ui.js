@@ -16,6 +16,10 @@ unitConverter.ui.generateButtonClickAction = function(category) {
 }
 
 
+// 応急処置
+unitConverter.ui.oldValueTable = {}
+
+
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
 unitConverter.ui.factory = {}
@@ -44,6 +48,8 @@ unitConverter.ui.factory.inputForm = function(convertManager, unit, value) {
     
     jqName = unitConverter.ui.factory.labelTextTag(label)
     jqInput = unitConverter.ui.factory.inputTag(convertManager, unit, value)
+    
+    jqInput.bind('keyup', unitConverter.ui.factory.inputAction(convertManager, unit))
 
     return $('<div>').addClass('container').
            append(jqName).append(jqInput).append("<div class='float_clear'><\/>")
@@ -53,27 +59,31 @@ unitConverter.ui.factory.inputForm = function(convertManager, unit, value) {
 unitConverter.ui.factory.inputAction = function(convertManager, unit) {
     var converter = convertManager.getConverter()
     var idName = "#" + convertManager.generateCssId(unit)
-    var oldValue = $(idName).val()
 
-    return function() {
+    var f = function() {
         var resultTable
+        var oldValue = unitConverter.ui.oldValueTable[unit]
         var currValue = $(idName).val()
+        
+        //alert(oldValue)
 
-        if((oldValue === currValue) ||
+        if(!currValue || (oldValue === currValue) ||
            (parseFloat(oldValue) == parseFloat(currValue))) {
             return
         }
         try {
             new Big(currValue)
         } catch (e) {
-            //alert(e)
+            alert(e)
             return
         }
         
         resultTable = converter.convertAll(unit, currValue)
         unitConverter.ui.controller.setUnitFormValue(convertManager, resultTable)
-        oldValue = currValue
+        unitConverter.ui.oldValueTable[unit] = currValue
     }
+    
+    return f
 }
 
 
@@ -92,6 +102,7 @@ unitConverter.ui.controller.repaintUnit = function(category, resultTable) {
     unitList = cm.getUnitNameList(category)
     
     resultTable = converter.convertAll(unitList[0], "1")
+    unitConverter.ui.oldValueTable = {}
     
     jqUnit = $("#unit").empty()
     jqForm = $("<form id=\"values\"></form>").appendTo(jqUnit)
@@ -101,7 +112,7 @@ unitConverter.ui.controller.repaintUnit = function(category, resultTable) {
         unit = unitList[i]
         jqInput = factory.inputForm(cm, unit, resultTable[unit])
         jqForm.append(jqInput)
-        jqInput.bind('keyup', factory.inputAction(cm, unit))
+        unitConverter.ui.oldValueTable[unit] = resultTable[unit]
     }
 }
 
@@ -113,6 +124,7 @@ unitConverter.ui.controller.setUnitFormValue = function(convertManager, resultTa
 
     for(var i = 0; i < unitList.length; i++) {
         $(prefixStr + unitList[i]).val(resultTable[unitList[i]])
+        unitConverter.ui.oldValueTable[unitList[i]] = resultTable[unitList[i]]
     }
 }
 
