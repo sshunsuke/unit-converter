@@ -4,7 +4,7 @@
 unitConverter.conversionTable(
 	
     // Category Name (mandatory)
-    "temperature",
+    "Temperature",
     
     // Header Data 
     { type: "function",

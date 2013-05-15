@@ -88,18 +88,18 @@ unitConverter.conversionTable = (function(){
     protoConversionInfoGeneratorRatioLite_.prototype.create = function() {
         var unit
         var data = this.cache.data
-        var ut = createConversionInfoSkeleton_(this.type, this.category)
+        var ci = createConversionInfoSkeleton_(this.type, this.category)
         
         for(var i = 0; i < data.length; i++) {
             unit = data[i].unit
-            ut.unitList.push(unit)
-            ut.conversionTable[unit] = {
+            ci.unitList.push(unit)
+            ci.conversionTable[unit] = {
                 ratio: data[i].ratio,
                 label: data[i].label || data[i].unit
             }
         }
         
-        return ut
+        return ci
     }
     
     /* - - - - - - - - - - - - - - - - - - - - - - - - - */
@@ -132,43 +132,6 @@ unitConverter.conversionTable = (function(){
         // check data.
         
         this.cache.data = data
-        
-        /*
-        var newTable = function(t, k) {
-        	if ( !t[k] ) { t[k] = {} }
-	    }
-	    
-	    var generateConverterFunction = function(value, div) {
-	    	if (div) {
-	    		return function(bigDecimal) { return bigDecimal.div(value) }
-	    	}
-	    	return function(bigDecimal) { return bigDecimal.times(value) }
-	    }
-        
-        var ft = {}
-        var from, to, converter
-        
-        for (var i = 0; i < data.length; i++) {
-        	from = data[i].unit
-        	for (to in data[i].converters) {
-        		if ( data[i].converters.hasOwnProperty(to) ) {
-        			converter = data[i].converters[to]
-        			newTable(ft, from)
-        			newTable(ft, to)
-        			newTable(ft[from], to)
-        			newTable(ft[to], from)
-        			ft[from][to] = functionFromTo(converter.value, converter.div)
-        			ft[to][from] = functionFromTo(converter.value, !(converter.div))
-        		}
-        	}
-        	
-        	if (data[i].label) {
-        		
-        	}
-        }
-        
-        this.cache.ft = ft
-        */
         
         return true
     }
@@ -218,8 +181,6 @@ unitConverter.conversionTable = (function(){
         			ct[toUnit].converters[fromUnit] = generateConverterFunction(converter.value, !(converter.div))
         		}
         	}
-        	
-        	//alert("---")
         }
         
         return ci
@@ -267,22 +228,22 @@ unitConverter.conversionTable = (function(){
     protoConversionInfoGeneratorLinear_.prototype.create = function() {
         var unit
         var data = this.cache.data
-        var ut = createConversionInfoSkeleton_(this.type, this.category)
+        var ci = createConversionInfoSkeleton_(this.type, this.category)
         
         for(var i = 0; i < data.length; i++) {
             unit = data[i].unit
-            ut.unitList.push(unit)
+            ci.unitList.push(unit)
             
             // check baseunit
             if (data[i].type == "baseunit") {
-                ut.baseunit = unit
-                ut.conversionTable[unit] = {
+                ci.baseunit = unit
+                ci.conversionTable[unit] = {
                     slope: 1,
                     y_intercept: 0,
                     label: data[i].label || unit
                 }
             } else {
-                ut.conversionTable[unit] = {
+                ci.conversionTable[unit] = {
                     slope: data[i].slope,
                     y_intercept: data[i].y_intercept,
                     label: data[i].label || unit
@@ -290,7 +251,7 @@ unitConverter.conversionTable = (function(){
             }
         }
         
-        return ut
+        return ci
     }
     
     /* - - - - - - - - - - - - - - - - - - - - - - - - - */
@@ -330,21 +291,21 @@ unitConverter.conversionTable = (function(){
         var unit
         var header = this.cache.header
         var data = this.cache.data
-        var ut = createConversionInfoSkeleton_(this.type, this.category)
+        var ci = createConversionInfoSkeleton_(this.type, this.category)
         
-        ut.arg = header.arg || "big.js"
-        ut.initialValue = header.initialValue
+        ci.arg = header.arg || "big.js"
+        ci.initialValue = header.initialValue
         
         for(var i = 0; i < data.length; i++) {
             unit = data[i].unit
-            ut.unitList.push(unit)
-            ut.conversionTable[unit] = {
+            ci.unitList.push(unit)
+            ci.conversionTable[unit] = {
                 converters: data[i].converters,
                 label: data[i].label || data[i].unit
             }
         }
         
-        return ut
+        return ci
     }
     
     /* - - - - - - - - - - - - - - - - - - - - - - - - - */
