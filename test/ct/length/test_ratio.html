@@ -1,0 +1,152 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja" lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>check jQuery</title>
+<script type="text/javascript" src="../../../src/lib/jquery-1.9.1.js"></script>
+<script type="text/javascript" src="../../../src/lib/big.js"></script>
+<script type="text/javascript" src="../../../src/js/core.js"></script>
+<script type="text/javascript" src="../../../src/js/ct.js"></script>
+<script type="text/javascript" src="../assert.js"></script>
+<script type="text/javascript">
+	'use strict';
+
+	var t = {}
+
+	var init = function(category, ci) {
+		t.category = category
+		t.ci = ci
+	}
+	unitConverter.core.registerConversionInfo = init
+	
+	/* - - - - - */
+
+	function stringBufferFactory() {
+	    var str = ""
+	    var indentStr = "    "
+	    
+	    return {
+	    	append: function(s) {
+	    		s = s || ""
+	    		str = str + s
+	    	},
+	    	
+    		appendWithIndent: function(s, indentLevel) {
+        		s = s || ""
+        		indentLevel = indentLevel || 0
+        		var indent = ""
+        		for (var i=0; i < indentLevel; i++) {
+        			indent = indent + indentStr
+        		}
+        		sb.append(indent + s)
+       		},
+        
+        	appendLine: function(s) {
+        	    s = s || ""
+        	    sb.append(s + '\n')
+        	},
+        
+        	appendLineWithIndent: function(s, indentLevel) {
+        		s = s || ""
+        		sb.appendWithIndent(s + '\n', indentLevel)
+        	},
+                
+        	toString: function() {
+            	return str
+        	}
+    	}
+	}
+
+	function print(msg) {
+		document.getElementById('output').value += msg + '\n'
+	}
+
+
+	 function ut_m(category, ci) {
+	 	var unit ="m"
+	 	assertObject(ci.conversionTable[unit], 'ci.conversionTable["' + unit + '"]')
+		assertEquals("m (SI)", ci.conversionTable[unit].label, "  .label")
+		assertObject(ci.conversionTable[unit].converters, "  .converters")
+		
+		var converters = ci.conversionTable[unit].converters
+		assertEquals(1.234, converters["km"](new Big(1234)))
+		assertEquals(123456, converters["cm"](new Big(1234.56)))
+		assertEquals(1234567, converters["mm"](new Big(1234.567)))
+		assertEquals(111222, converters["micro-m"](new Big(0.111222)))
+		assertEquals(39.370, converters["inch"](new Big(1)).round(3))
+		assertEquals(3.2808, converters["ft"](new Big(1)).round(4))
+		assertEquals(1.0936, converters["yd"](new Big(1)).round(4))
+		assertEquals(0.00062137, converters["mile"](new Big(1)).round(8))
+	}
+	
+	function ut_km(category, ci) {
+	 	var unit ="km"
+	 	assertObject(ci.conversionTable[unit], 'ci.conversionTable["' + unit + '"]')
+		assertEquals("km", ci.conversionTable[unit].label, "  .label")
+		assertObject(ci.conversionTable[unit].converters, "  .converters")
+		
+		var converters = ci.conversionTable[unit].converters
+		assertEquals(12000, converters["m"](new Big(12)))
+		assertEquals(100000, converters["cm"](new Big(1)))
+		assertEquals(1234000, converters["mm"](new Big(1.234)))
+		assertEquals(111222, converters["micro-m"](new Big(0.111222)))
+		assertEquals(39.370, converters["inch"](new Big(1)).round(3))
+		assertEquals(3.2808, converters["ft"](new Big(1)).round(4))
+		assertEquals(1.0936, converters["yd"](new Big(1)).round(4))
+		assertEquals(0.00062137, converters["mile"](new Big(1)).round(8))
+	}	
+
+	var ut = function(category, ci) {
+		print("start: Unit Test")
+		print("")
+		
+		assertEquals("Length", category, "category")
+		assertEquals("function", ci.type, "ci.type")
+		
+		// ci.unitList
+		print("")
+		assertArrayEquals(['m', 'km', 'cm', 'mm', 'micro-m', 'inch', 'ft', 'yd', 'mile'],
+		                  ci.unitList, "ci.unitList")
+		
+		// ci.conversionTable
+		print("")
+		assertObject(ci.conversionTable, "ci.conversionTable")
+		print("")
+		
+		// converters
+		ut_m(category, ci)
+		print("")
+		ut_km(category, ci)
+		print("")
+
+		
+		
+		print("")
+		print("finish: Unit Test")
+	}
+	
+	window.onload = function() {
+		try {
+			ut(t.category, t.ci)
+		} catch(e) {
+			print("")
+			print("- - - Error - - -")
+			print("e.message: ")
+			print(e.message)
+			print("")
+			if (e.stack) {
+				print("e.stack:")
+				print(e.stack)
+				alert(e.stack)
+			}
+		}
+		
+	}
+	
+</script>
+<script type="text/javascript" src="../../../src/js/ct/length/ratio.js"></script>
+
+</head>
+<body>
+    <form><textarea id="output" cols="100" rows="50"></textarea></form>
+</body>
+</html>

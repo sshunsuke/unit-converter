@@ -18,7 +18,9 @@ unitConverter.conversionTable(
         {unit: "mm", ratio: 1000},
         {unit: "micro-m", ratio: 1000000, label: "µm"},
         {unit: "inch", ratio: 39.3701},
-        {unit: "ft", ratio: 3.28084}
+        {unit: "ft", ratio: 3.28084},
+        {unit: "yd", ratio: 1.0936133},
+        {unit: "mile", ratio: 0.000621371192 }
     ]
 )
 
